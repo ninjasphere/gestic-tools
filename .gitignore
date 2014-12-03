@@ -1,3 +1,5 @@
+sdk/apps/Linux/build/
+
 # Object files
 *.o
 *.ko

@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define stricmp strcasecmp
+
 // Declaration of Library and Loader
 // NOTE:
 //    The structure of those variables is compatible with gestic_flash_image_t

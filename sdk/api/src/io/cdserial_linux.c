@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <termios.h>
 
-#define DEVICE "/dev/ttyACM0"
+#define DEVICE "/dev/gestic"
 
 int gestic_open(gestic_t *gestic) {
     int error = GESTIC_NO_ERROR;
@@ -39,6 +39,7 @@ int gestic_open(gestic_t *gestic) {
     if(device == -1)
         error = GESTIC_IO_OPEN_ERROR;
 
+#if disabled_for_ninja_sphere
     /* Set terminal parameters */
     if(!error) {
         struct termios io;
@@ -67,6 +68,7 @@ int gestic_open(gestic_t *gestic) {
                 error = GESTIC_IO_CTL_ERROR;
         }
     }
+#endif
 
     if(error) {
         if(device != -1)

@@ -13,7 +13,7 @@ BUILDDIR := build
 # Configuration of the individual products
 
 framework_dyn_SRC_FILES := core.c flash.c fw_version.c rtc.c stream.c \
-                       io/cdcbridge_linux.c io/serial.c \
+                       io/cdserial_linux.c io/serial.c \
                        dynamic/depr_stream.c dynamic/dynamic.c
 framework_dyn_SRC_PATH  := ../../api/src
 framework_dyn_BUILDDIR  := $(BUILDDIR)/framework/dynamic
@@ -22,7 +22,7 @@ framework_dyn_CFLAGS    := -fpic -DGESTIC_API_EXPORT -DGESTIC_API_DYNAMIC
 framework_dyn_LDFLAGS   := -shared
 
 framework_stat_SRC_FILES := core.c flash.c fw_version.c rtc.c stream.c \
-                        io/cdcbridge_linux.c io/serial.c
+                        io/cdserial_linux.c io/serial.c
 framework_stat_SRC_PATH  := ../../api/src
 framework_stat_BUILDDIR  := $(BUILDDIR)/framework/static
 framework_stat_FILENAME  := libgestic.a
