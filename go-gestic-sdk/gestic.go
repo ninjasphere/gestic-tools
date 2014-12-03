@@ -34,6 +34,9 @@ func Open() (GestureInterface, error) {
 	if res != C.GESTIC_NO_ERROR {
 		return nil, errors.New("Could not connect to GestIC device")
 	}
+	
+	// default to everything. TODO: add func to configure this
+	C.gestic_set_output_enable_mask(g.impl, C.gestic_data_mask_all, C.gestic_data_mask_all, C.gestic_data_mask_all, 100)
 
 	return g, nil
 }
@@ -58,4 +61,80 @@ func (g *GestIC) FirmwareVersion() (string, error) {
 	trimmed := ver[:strings.Index(ver, "\x00")]
 	
 	return trimmed, nil
+}
+
+func (g *GestIC) getCurrentMessage() GestureMessage {
+	msg := GestureMessage{}
+	
+	cic := C.gestic_get_cic(g.impl, 0)
+	dev := C.gestic_get_sd(g.impl, 0)
+	for i := 0; i < 5; i++ {
+		msg.RawCICSignals.Channels[i] = float32(cic.channel[i])
+		msg.SignalDeviation.Channels[i] = float32(dev.channel[i])
+	}
+
+	pos := C.gestic_get_position(g.impl, 0)
+	msg.Position.X = int(pos.x)
+	msg.Position.Y = int(pos.y)
+	msg.Position.Z = int(pos.z)
+
+	ges := C.gestic_get_gesture(g.impl, 0)
+	msg.Gesture.Gesture = GestureType(ges.gesture)
+	msg.Gesture.EdgeFlick = ((ges.flags & C.gestic_gesture_edge_flick) != 0)
+	msg.Gesture.InProgress = ((ges.flags & C.gestic_gesture_in_progress) != 0)
+	msg.Gesture.CountSinceLast = int(ges.last_event)
+
+	tch := C.gestic_get_touch(g.impl, 0)
+	msg.Touch.North  = ((tch.flags & C.gestic_touch_north) != 0)
+	msg.Touch.South  = ((tch.flags & C.gestic_touch_south) != 0)
+	msg.Touch.East   = ((tch.flags & C.gestic_touch_east) != 0)
+	msg.Touch.West   = ((tch.flags & C.gestic_touch_west) != 0)
+	msg.Touch.Center = ((tch.flags & C.gestic_touch_center) != 0)
+	msg.Touch.CountSinceLast = int(tch.last_event)
+
+	msg.Tap.North  = ((tch.tap_flags & C.gestic_tap_north) != 0)
+	msg.Tap.South  = ((tch.tap_flags & C.gestic_tap_south) != 0)
+	msg.Tap.East   = ((tch.tap_flags & C.gestic_tap_east) != 0)
+	msg.Tap.West   = ((tch.tap_flags & C.gestic_tap_west) != 0)
+	msg.Tap.Center = ((tch.tap_flags & C.gestic_tap_center) != 0)
+	msg.Tap.CountSinceLast = int(tch.last_tap_event)
+
+	msg.DoubleTap.North  = ((tch.tap_flags & C.gestic_double_tap_north) != 0)
+	msg.DoubleTap.South  = ((tch.tap_flags & C.gestic_double_tap_south) != 0)
+	msg.DoubleTap.East   = ((tch.tap_flags & C.gestic_double_tap_east) != 0)
+	msg.DoubleTap.West   = ((tch.tap_flags & C.gestic_double_tap_west) != 0)
+	msg.DoubleTap.Center = ((tch.tap_flags & C.gestic_double_tap_center) != 0)
+	msg.DoubleTap.CountSinceLast = int(tch.last_tap_event)
+
+	air := C.gestic_get_air_wheel(g.impl, 0)
+	msg.AirWheel.Counter = int(air.counter)
+	msg.AirWheel.Active = (air.active != 0)
+	msg.AirWheel.CountSinceLast = int(air.last_event)
+	
+	return msg
+}
+
+func (g *GestIC) dataStreamUpdate() error {
+	res := C.gestic_data_stream_update(g.impl, nil)
+	if res != C.GESTIC_NO_ERROR {
+		return errors.New("Error while updating data stream")
+	}
+	return nil
+}
+
+func (g *GestIC) DataStream() (chan GestureMessage) {
+	c := make(chan GestureMessage, 16)
+
+	go func() {
+		for {
+			err := g.dataStreamUpdate()
+			if err != nil {
+				panic(err)
+			}
+			
+			c <- g.getCurrentMessage()
+		}
+	}()
+	
+	return c
 }
