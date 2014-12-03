@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="io\cdcserial_win.c">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="io\serial.c">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="core.c">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="flash.c">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="fw_version.c">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="rtc.c">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="stream.c">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="dynamic\dynamic.c">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+    <ClCompile Include="dynamic\depr_stream.c">
+      <Filter>dynamic</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\gestic_api.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gestic_dynamic.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gestic_static.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="io\io.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="impl.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamic\dynamic.h">
+      <Filter>dynamic</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\arch.h">
+      <Filter>architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="arch\x86_win.h">
+      <Filter>architecture</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{391b85f1-e75f-44d4-aa49-d3aee95a7cf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="io">
+      <UniqueIdentifier>{5850c804-4859-49c9-8e5b-c8ab93889bca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{d11df664-409a-4d6d-a7c7-7b796da01e57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dynamic">
+      <UniqueIdentifier>{4b3e1901-d208-47bc-a1de-07b3212cae7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="architecture">
+      <UniqueIdentifier>{14c004e7-bd1e-4b4c-9fe0-7e0b6802f801}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

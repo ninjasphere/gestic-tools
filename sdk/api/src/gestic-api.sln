@@ -1,0 +1,26 @@
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gestic-api", "gestic-api.vcxproj", "{DAD8B593-2982-4A86-9427-0C0BF4FD612E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Dynamic-Debug|Win32 = Dynamic-Debug|Win32
+		Dynamic-Release|Win32 = Dynamic-Release|Win32
+		Static-Debug|Win32 = Static-Debug|Win32
+		Static-Release|Win32 = Static-Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Dynamic-Debug|Win32.ActiveCfg = Dynamic-Debug|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Dynamic-Debug|Win32.Build.0 = Dynamic-Debug|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Dynamic-Release|Win32.ActiveCfg = Dynamic-Release|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Dynamic-Release|Win32.Build.0 = Dynamic-Release|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Static-Debug|Win32.ActiveCfg = Static-Debug|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Static-Debug|Win32.Build.0 = Static-Debug|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Static-Release|Win32.ActiveCfg = Static-Release|Win32
+		{DAD8B593-2982-4A86-9427-0C0BF4FD612E}.Static-Release|Win32.Build.0 = Static-Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

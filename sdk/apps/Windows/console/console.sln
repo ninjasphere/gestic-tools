@@ -1,0 +1,20 @@
+
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "console", "console.vcxproj", "{66278EB1-A998-4F88-AB7D-157233BCD181}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Dynamic-Debug|Win32 = Dynamic-Debug|Win32
+		Dynamic-Release|Win32 = Dynamic-Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66278EB1-A998-4F88-AB7D-157233BCD181}.Dynamic-Debug|Win32.ActiveCfg = Dynamic-Debug|Win32
+		{66278EB1-A998-4F88-AB7D-157233BCD181}.Dynamic-Debug|Win32.Build.0 = Dynamic-Debug|Win32
+		{66278EB1-A998-4F88-AB7D-157233BCD181}.Dynamic-Release|Win32.ActiveCfg = Dynamic-Release|Win32
+		{66278EB1-A998-4F88-AB7D-157233BCD181}.Dynamic-Release|Win32.Build.0 = Dynamic-Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
