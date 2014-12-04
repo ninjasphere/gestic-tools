@@ -1,3 +1,3 @@
 #!/bin/sh
 
-/sbin/depmod
+grep 'gestic' /etc/modules || echo gestic >> /etc/modules
