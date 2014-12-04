@@ -19,5 +19,5 @@ fpm -s dir -t deb -a ${PACKAGE_ARCH} -n ${PACKAGE_NAME} -v ${PACKAGE_VERSION} --
 rm -rf .tmp-pkg
 
 if [[ ! -z "$PUSH_SCRIPT" ]]; then
-	$PUSH_SCRIPT $(pwd)/${PACKAGE_NAME}_${PACKAGE_VERSION}_${PACKAGE_ARCH}.deb
+	$PUSH_SCRIPT $(pwd)/${PACKAGE_NAME}_${PACKAGE_VERSION}-raw_${PACKAGE_ARCH}.deb
 fi
