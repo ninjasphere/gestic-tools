@@ -10,6 +10,10 @@ mkdir -p .tmp-pkg/lib/modules/3.12.10+/extra
 
 cp gestic.ko .tmp-pkg/lib/modules/3.12.10+/extra/gestic.ko
 
-fpm -s dir -t deb -a armhf -n gestic-driver -v 0.0.1 --after-install packaging/kernel-postinstall.sh -C .tmp-pkg/ lib
+fpm -s dir -t deb -a armhf -n gestic-driver -v 1.0.0 --after-install packaging/kernel-postinstall.sh --iteration raw -C .tmp-pkg/ lib
 
 rm -rf .tmp-pkg
+
+if [[ ! -z "$PUSH_SCRIPT" ]]; then
+	$PUSH_SCRIPT
+fi
