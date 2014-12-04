@@ -8,8 +8,6 @@ obj-m += gestic.o
 
 all:
 	$(BUILD_VARS) make -C $(KDIR) M=$(PWD) modules
-	rm -rf .pkg
-	$(BUILD_VARS) make -C $(KDIR) M=$(PWD) INSTALL_MOD_PATH=$(PWD)/.pkg modules_install
 
 clean:
 	$(BUILD_VARS) make -C $(KDIR) M=$(PWD) clean
