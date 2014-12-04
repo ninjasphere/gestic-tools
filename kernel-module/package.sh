@@ -8,4 +8,4 @@ make
 # clean cruft
 rm -rf .pkg/lib/modules/*/modules.*
 
-fpm -s dir -t deb -n gestic-driver -v 0.0.1 -C .pkg/ lib
+fpm -s dir -t deb -a armhf -n gestic-driver -v 0.0.1 -C .pkg/ lib
