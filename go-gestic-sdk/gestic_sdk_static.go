@@ -1,3 +1,5 @@
+// +build cgo
+
 package gestic
 
 /*
@@ -14,4 +16,3 @@ package gestic
 #include "../sdk/api/src/dynamic/dynamic.c"
 */
 import "C"
-

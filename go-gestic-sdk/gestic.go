@@ -1,3 +1,5 @@
+// +build cgo
+
 package gestic
 
 /*
@@ -8,8 +10,8 @@ import "C"
 
 import (
 	"errors"
-	"unsafe"
 	"strings"
+	"unsafe"
 )
 
 type GestIC struct {
@@ -34,7 +36,7 @@ func Open() (GestureInterface, error) {
 	if res != C.GESTIC_NO_ERROR {
 		return nil, errors.New("Could not connect to GestIC device")
 	}
-	
+
 	// default to everything. TODO: add func to configure this
 	C.gestic_set_output_enable_mask(g.impl, C.gestic_data_mask_all, C.gestic_data_mask_all, C.gestic_data_mask_all, 100)
 
@@ -50,7 +52,7 @@ func (g *GestIC) Close() {
 
 func (g *GestIC) FirmwareVersion() (string, error) {
 	buf := make([]byte, 120)
-	
+
 	cstr := (*C.char)(unsafe.Pointer(&buf[0]))
 	errno := C.gestic_query_fw_version(g.impl, cstr, C.int(len(buf)), 100)
 	if errno != C.GESTIC_NO_ERROR {
@@ -59,13 +61,13 @@ func (g *GestIC) FirmwareVersion() (string, error) {
 
 	ver := string(buf)
 	trimmed := ver[:strings.Index(ver, "\x00")]
-	
+
 	return trimmed, nil
 }
 
 func (g *GestIC) getCurrentMessage() GestureMessage {
 	msg := GestureMessage{}
-	
+
 	cic := C.gestic_get_cic(g.impl, 0)
 	dev := C.gestic_get_sd(g.impl, 0)
 	for i := 0; i < 5; i++ {
@@ -85,24 +87,24 @@ func (g *GestIC) getCurrentMessage() GestureMessage {
 	msg.Gesture.CountSinceLast = int(ges.last_event)
 
 	tch := C.gestic_get_touch(g.impl, 0)
-	msg.Touch.North  = ((tch.flags & C.gestic_touch_north) != 0)
-	msg.Touch.South  = ((tch.flags & C.gestic_touch_south) != 0)
-	msg.Touch.East   = ((tch.flags & C.gestic_touch_east) != 0)
-	msg.Touch.West   = ((tch.flags & C.gestic_touch_west) != 0)
+	msg.Touch.North = ((tch.flags & C.gestic_touch_north) != 0)
+	msg.Touch.South = ((tch.flags & C.gestic_touch_south) != 0)
+	msg.Touch.East = ((tch.flags & C.gestic_touch_east) != 0)
+	msg.Touch.West = ((tch.flags & C.gestic_touch_west) != 0)
 	msg.Touch.Center = ((tch.flags & C.gestic_touch_center) != 0)
 	msg.Touch.CountSinceLast = int(tch.last_event)
 
-	msg.Tap.North  = ((tch.tap_flags & C.gestic_tap_north) != 0)
-	msg.Tap.South  = ((tch.tap_flags & C.gestic_tap_south) != 0)
-	msg.Tap.East   = ((tch.tap_flags & C.gestic_tap_east) != 0)
-	msg.Tap.West   = ((tch.tap_flags & C.gestic_tap_west) != 0)
+	msg.Tap.North = ((tch.tap_flags & C.gestic_tap_north) != 0)
+	msg.Tap.South = ((tch.tap_flags & C.gestic_tap_south) != 0)
+	msg.Tap.East = ((tch.tap_flags & C.gestic_tap_east) != 0)
+	msg.Tap.West = ((tch.tap_flags & C.gestic_tap_west) != 0)
 	msg.Tap.Center = ((tch.tap_flags & C.gestic_tap_center) != 0)
 	msg.Tap.CountSinceLast = int(tch.last_tap_event)
 
-	msg.DoubleTap.North  = ((tch.tap_flags & C.gestic_double_tap_north) != 0)
-	msg.DoubleTap.South  = ((tch.tap_flags & C.gestic_double_tap_south) != 0)
-	msg.DoubleTap.East   = ((tch.tap_flags & C.gestic_double_tap_east) != 0)
-	msg.DoubleTap.West   = ((tch.tap_flags & C.gestic_double_tap_west) != 0)
+	msg.DoubleTap.North = ((tch.tap_flags & C.gestic_double_tap_north) != 0)
+	msg.DoubleTap.South = ((tch.tap_flags & C.gestic_double_tap_south) != 0)
+	msg.DoubleTap.East = ((tch.tap_flags & C.gestic_double_tap_east) != 0)
+	msg.DoubleTap.West = ((tch.tap_flags & C.gestic_double_tap_west) != 0)
 	msg.DoubleTap.Center = ((tch.tap_flags & C.gestic_double_tap_center) != 0)
 	msg.DoubleTap.CountSinceLast = int(tch.last_tap_event)
 
@@ -110,7 +112,7 @@ func (g *GestIC) getCurrentMessage() GestureMessage {
 	msg.AirWheel.Counter = int(air.counter)
 	msg.AirWheel.Active = (air.active != 0)
 	msg.AirWheel.CountSinceLast = int(air.last_event)
-	
+
 	return msg
 }
 
@@ -122,7 +124,7 @@ func (g *GestIC) dataStreamUpdate() error {
 	return nil
 }
 
-func (g *GestIC) DataStream() (chan GestureMessage) {
+func (g *GestIC) DataStream() chan GestureMessage {
 	c := make(chan GestureMessage, 16)
 
 	go func() {
@@ -131,10 +133,10 @@ func (g *GestIC) DataStream() (chan GestureMessage) {
 			if err != nil {
 				panic(err)
 			}
-			
+
 			c <- g.getCurrentMessage()
 		}
 	}()
-	
+
 	return c
 }
