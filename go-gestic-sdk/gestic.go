@@ -68,7 +68,7 @@ func (g *GestIC) FirmwareVersion() (string, error) {
 
 func (g *GestIC) getCurrentMessage() GestureMessage {
 	msg := GestureMessage{
-		Time: time.Now,
+		Time: time.Now(),
 	}
 
 	cic := C.gestic_get_cic(g.impl, 0)
