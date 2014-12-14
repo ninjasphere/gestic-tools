@@ -11,6 +11,7 @@ import "C"
 import (
 	"errors"
 	"strings"
+	"time"
 	"unsafe"
 )
 
@@ -66,7 +67,9 @@ func (g *GestIC) FirmwareVersion() (string, error) {
 }
 
 func (g *GestIC) getCurrentMessage() GestureMessage {
-	msg := GestureMessage{}
+	msg := GestureMessage{
+		Time: time.Now,
+	}
 
 	cic := C.gestic_get_cic(g.impl, 0)
 	dev := C.gestic_get_sd(g.impl, 0)
