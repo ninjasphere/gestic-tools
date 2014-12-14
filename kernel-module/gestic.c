@@ -1,34 +1,3 @@
-/*
-J13,2  SPI1_SCLK  SOM-167   TS (GPIO3_0)
-
-J13,3  I2C1_SDA  SOM-104  SDA
-J13,5  I2C1_SCL  SOM-106  SCL
-*/
-
-#define GESTIC_GPIO_TS ((3*32) + 10) // 3_0 on EVK
-#define GESTIC_GPIO_TS_NAME "mii1_rxclk" // mii1_col on EVK
-
-#define GESTIC_GPIO_MCLR ((3*32) + 4) // 3_0 on EVK
-#define GESTIC_GPIO_MCLR_NAME "mii1_rxdv"
-
-// this is "2" on 3.2 and "1" on 3.12
-#define GESTIC_I2C_BUS_NUM 1
-#define GESTIC_I2C_ADDRESS 0x42
-
-
-#define GESTIC_DEBUG (spammy_debug)
-
-
-#define MAX_MESSAGE_LEN 255
-#define BUFFER_SIZE (MAX_MESSAGE_LEN + 3)
-
-
-#define OMAP_MUX_OUTPUT 0x07
-#define OMAP_MUX_INPUT 0x3f
-#define OMAP_MUX_INPUT_PULLUP 0x37
-#define OMAP_MUX_INPUT_PULLDOWN 0x27
-
-
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/version.h>
@@ -47,9 +16,38 @@ J13,5  I2C1_SCL  SOM-106  SCL
 #include <../arch/arm/mach-omap2/mux.h>
 #include <asm/io.h>
 
+/*
+Ninja Sphere pinouts:
+J13,2  SPI1_SCLK  SOM-167   TS (GPIO3_0)
+J13,3  I2C1_SDA  SOM-104  SDA
+J13,5  I2C1_SCL  SOM-106  SCL
+*/
+
+/* Pin Configuration */
+#define GESTIC_GPIO_TS ((3*32) + 10) // 3_0 on EVK
+#define GESTIC_GPIO_TS_NAME "mii1_rxclk" // mii1_col on EVK
+
+#define GESTIC_GPIO_MCLR ((3*32) + 4) // 3_0 on EVK
+#define GESTIC_GPIO_MCLR_NAME "mii1_rxdv"
+
+/* I2C configuration
+ * Note: bus number is "2" on 3.2 and "1" on 3.12
+ */
+#define GESTIC_I2C_BUS_NUM 1
+#define GESTIC_I2C_ADDRESS 0x42
+
+#define GESTIC_DEBUG (spammy_debug)
+
+#define MAX_MESSAGE_LEN 255
+#define BUFFER_SIZE (MAX_MESSAGE_LEN + 3)
+
+#define OMAP_MUX_OUTPUT 0x07
+#define OMAP_MUX_INPUT 0x3f
+#define OMAP_MUX_INPUT_PULLUP 0x37
+#define OMAP_MUX_INPUT_PULLDOWN 0x27
+
 static volatile unsigned char *ts_mux_setting;
 static volatile unsigned char *mclr_mux_setting;
-static volatile int is_writing = 0;
 
 static dev_t first_dev;
 static struct cdev c_dev;
@@ -67,6 +65,7 @@ static volatile size_t xmit_len = 0;
 
 static volatile int waiting_ts_release = 0;
 
+/* Module options */
 static bool bridge_spam_reads = 0;   
 module_param(bridge_spam_reads, bool, 0);   
 MODULE_PARM_DESC(bridge_spam_reads, "Bridge mode, reading regardless of TS line");
@@ -131,46 +130,6 @@ static int gestic_close(struct inode *i, struct file *f)
   return 0;
 }
 
-/**
- * i2c_master_recv_len - issue a single I2C message in master receive mode
- * while also setting the I2C_M_RECV_LEN flag, meaning the first byte
- * specifies the amount of data to read in total, bounded by count.
- *
- * @client: Handle to slave device
- * @buf: Where to store data read from slave
- * @count: Maximum bytes to read, must be less than 64k since msg.len is u16
- *
- * Returns negative errno, or else the number of bytes read.
- */
-int i2c_master_recv_len(const struct i2c_client *client, char *buf, int count)
-{
-  struct i2c_adapter *adap = client->adapter;
-  struct i2c_msg msg[2];
-  int ret;
-
-  msg[0].addr = client->addr;
-  msg[0].flags = client->flags & I2C_M_TEN;
-  msg[0].flags |= I2C_M_RECV_LEN;
-  msg[0].flags |= I2C_M_RD;
-  msg[0].len = count;
-  msg[0].buf = buf;
-
-  /*
-  msg[1].addr = client->addr;
-  msg[1].flags = client->flags & I2C_M_TEN;
-  // msg.flags |= I2C_M_RECV_LEN;
-  msg[1].flags |= I2C_M_RD;
-  msg[1].len = count - 1;
-  msg[1].buf = buf + 1;
-  */
-
-  ret = i2c_transfer(adap, msg, 1);
-
-  /* If everything went ok (i.e. 1 msg transmitted), return #bytes
-     actually received, else error code. */
-  return (ret == 1) ? (msg[0].len /*+ msg[1].len*/) : ret;
-}
-
 static int gestic_fill_buffer() {
   char ktmp[512];
   struct gestic_message_header *hdr = (struct gestic_message_header *)ktmp;
@@ -178,7 +137,6 @@ static int gestic_fill_buffer() {
 
   // asserted: now we assert too, so the data doesn't change
   // gpio_direction_output(GESTIC_GPIO_TS, 0);
-  // is_writing = 1;
   if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: <<< RE-asserting TS (in fill_buffer)\n");
   __raw_writew(OMAP_MUX_OUTPUT, ts_mux_setting);
   gpio_direction_output(GESTIC_GPIO_TS, 0);
@@ -188,7 +146,6 @@ static int gestic_fill_buffer() {
 
   memset(ktmp, 0, 255);
   bytes_read = i2c_master_recv(gestic_client, ktmp, 138); // 4 is legth of headrer, min, which holds the length field
-//  bytes_read = i2c_master_recv(gestic_client, ktmp, 140); // len will be += the length byte, which could be up to 140
 
   if (bytes_read > 0) {
     if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: fill(): read %d bytes, len %d, flags %04x\n", bytes_read, hdr->size, gestic_client->flags);
@@ -223,7 +180,6 @@ static int gestic_fill_buffer() {
 
   // stop asserting the TS line
   // gpio_direction_input(GESTIC_GPIO_TS);
-  // is_writing = 0;
   waiting_ts_release = 1;
   if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: <<< releasing TS\n");
   gpio_direction_input(GESTIC_GPIO_TS);
@@ -233,8 +189,7 @@ static int gestic_fill_buffer() {
   return bytes_read;
 }
 
-static ssize_t gestic_read(struct file *f, char __user *buf, size_t
-  len, loff_t *off)
+static ssize_t gestic_read(struct file *f, char __user *buf, size_t len, loff_t *off)
 {
   int bytes_read;
   size_t to_send;
@@ -245,14 +200,6 @@ static ssize_t gestic_read(struct file *f, char __user *buf, size_t
     printk(KERN_INFO "GestIC WARN: gestic_read() WARN: called with empty buffer, returning 0 bytes\n");
     return 0; // can't read 0 bytes
   }
-
-  // if (waiting_ts_release) {
-  //   if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: waiting for TS release from MGC3130...\n");
-  //   if (wait_event_interruptible(write_queue, (waiting_ts_release == 0)) < 0) {
-  //     return -ERESTARTSYS;
-  //   }
-  //   if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: released by MGC3130 [waiting_ts_release=%d]!\n", waiting_ts_release);
-  // }
 
   // if we have data available in our buffer, push it out
   to_send = msg_length - msg_offset;
@@ -348,11 +295,6 @@ static void gestic_write_byte(char b)
   if (xmit_len > 3 && hdr->size > 0 && xmit_len-2 == hdr->size) {
     if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: write msg[size=%d, flags=%d, seq=%d, id=%d], xmit_len=%d\n", hdr->size, hdr->flags, hdr->seq, hdr->id, xmit_len);
 
-    // wait for TS line to be *released*
-    // if (gpio_get_value(GESTIC_GPIO_TS) == 0) {
-    //   wait_event_interruptible(write_queue, (gpio_get_value(GESTIC_GPIO_TS) != 0));
-    // }
-
     if (GESTIC_DEBUG) print_hex_dump(KERN_DEBUG, "i2c_master_send >>> ", DUMP_PREFIX_OFFSET, 16, 1, xmit_buffer + 2, xmit_len - 2, true);
     bytes_sent = i2c_master_send(gestic_client, xmit_buffer + 2, xmit_len - 2);
     xmit_len = 0; // reset for next message
@@ -363,22 +305,12 @@ static void gestic_write_byte(char b)
   }
 }
 
-static ssize_t gestic_write(struct file *f, const char __user *buf,
-  size_t len, loff_t *off)
+static ssize_t gestic_write(struct file *f, const char __user *buf, size_t len, loff_t *off)
 {
   char ktmp[512];
   size_t bytes = len;
   int i;
 
-  /*
-  if (waiting_ts_release) {
-    if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: waiting for TS release from MGC3130...\n");
-    if (wait_event_interruptible(write_queue, (waiting_ts_release == 0)) < 0) {
-      return -ERESTARTSYS;
-    }
-    if (GESTIC_DEBUG) printk(KERN_INFO "GestIC: released by MGC3130 [waiting_ts_release=%d]!\n", waiting_ts_release);
-  }
-  */
 
   if ( bytes > 255 ) {
     bytes = 255;
@@ -474,10 +406,6 @@ static irqreturn_t data_incoming_ready(int irq, void *dev_id)
   {
     return IRQ_NONE;
   }
-
-  // if ( is_writing ) {
-  //   return IRQ_HANDLED;
-  // }
   
   if (new_value != last_value) {
     // simple change
