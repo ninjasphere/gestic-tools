@@ -20,3 +20,7 @@ aurea-bridge
 ------------
 
 This small bash script re-appropriates the USB gadget serial driver (usually used for USB console access) to act as a USB-I2C bridge.
+
+calibration
+-----------
+calibration files, lib version is in name, timestamp in name.
