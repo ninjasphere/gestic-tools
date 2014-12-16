@@ -20,6 +20,9 @@
  * INDIRECT OR CONSEQUENTIAL DAMAGES, OR OTHER SIMILAR COSTS.
  *
  ******************************************************************************/
+
+//#define ON_ERROR_RESUME_NEXT
+
 #include <gestic_api.h>
 
 #include <stdio.h>
@@ -93,9 +96,11 @@ int main()
     /* Read the running firmware version */
     if(gestic_query_fw_version(gestic, version, sizeof(version), 100) < 0) {
         fprintf(stderr, "Could not read running firmware version.\n");
+#ifndef ON_ERROR_RESUME_NEXT
         gestic_cleanup(gestic);
         gestic_free(gestic);
         return -1;
+#endif
     }
     /* The version should already include an terminating \0 but
      * as it was get via IO from external source we take extra care.
@@ -125,9 +130,11 @@ int main()
     printf("Waiting until loader-update is completed.\n");
     if(gestic_flash_wait_loader_updated(gestic, 20000) != 0) {
         fprintf(stderr, "Loader-update seems to have failed. Aborting.\n");
+#ifndef ON_ERROR_RESUME_NEXT
         gestic_cleanup(gestic);
         gestic_free(gestic);
         return -1;
+#endif
     }
 
     printf("Flashing library.\n");
