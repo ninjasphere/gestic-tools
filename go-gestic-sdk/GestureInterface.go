@@ -3,6 +3,7 @@ package gestic
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 type GestureInterface interface {
@@ -12,6 +13,7 @@ type GestureInterface interface {
 }
 
 type GestureMessage struct {
+	Time            time.Time
 	RawCICSignals   Signal
 	SignalDeviation Signal
 	Position        Position
