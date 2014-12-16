@@ -9,7 +9,7 @@ struct {
         unsigned char length;
         unsigned char data[128];
     } data[109];
-} image = {
+} Loader = {
     // Record-Count
     109,
 
