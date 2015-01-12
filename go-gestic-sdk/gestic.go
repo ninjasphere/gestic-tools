@@ -122,7 +122,7 @@ func (g *GestIC) getCurrentMessage() GestureMessage {
 func (g *GestIC) dataStreamUpdate() error {
 	res := C.gestic_data_stream_update(g.impl, nil)
 	if res != C.GESTIC_NO_ERROR {
-		return errors.New("Error while updating data stream")
+		return errors.New("Error while updating data stream: %v", res)
 	}
 	return nil
 }
