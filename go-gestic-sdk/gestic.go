@@ -11,6 +11,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 	"unsafe"
@@ -120,12 +121,17 @@ func (g *GestIC) getCurrentMessage() GestureMessage {
 	return msg
 }
 
-func (g *GestIC) dataStreamUpdate() error {
+func (g *GestIC) dataStreamUpdate() (error, bool) {
 	res := C.gestic_data_stream_update(g.impl, nil)
-	if res != C.GESTIC_NO_ERROR {
-		return fmt.Errorf("Error while updating data stream: %d", res)
+
+	switch res {
+	case C.GESTIC_NO_ERROR:
+		return nil, false
+	case C.GESTIC_NO_DATA:
+		return fmt.Errorf("No data."), false
+	default:
+		return fmt.Errorf("Error while updating data stream: %d", res), true
 	}
-	return nil
 }
 
 func (g *GestIC) DataStream() chan GestureMessage {
@@ -133,11 +139,15 @@ func (g *GestIC) DataStream() chan GestureMessage {
 
 	go func() {
 		for {
-			err := g.dataStreamUpdate()
+			err, fatal := g.dataStreamUpdate()
 			if err != nil {
-				panic(err)
+				if fatal {
+					panic(err)
+				} else {
+					log.Printf("warning: %v", err)
+					continue
+				}
 			}
-
 			c <- g.getCurrentMessage()
 		}
 	}()
