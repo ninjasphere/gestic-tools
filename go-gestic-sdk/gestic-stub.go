@@ -12,7 +12,7 @@ func Version() string {
 }
 
 func Open() (GestureInterface, error) {
-	return nil, nil
+	return &GestIC{}, nil
 }
 
 func (g *GestIC) Close() {
