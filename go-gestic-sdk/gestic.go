@@ -1,4 +1,4 @@
-// +build cgo,!darwin
+// +build linux
 
 package gestic
 
